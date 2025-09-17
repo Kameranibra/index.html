@@ -1,8 +1,7 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html dir="rtl" lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8"></meta>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"></meta>
   <title>Yassmin TV</title>
   <style>
     body {
@@ -56,7 +55,6 @@
       max-width: 900px;
       aspect-ratio: 16/9;
       border: none;
-      background: #000;
     }
     #closeBtn {
       margin-bottom: 15px;
@@ -76,29 +74,140 @@
 </head>
 <body>
   <header>🎬 Yassmin TV</header>
+  </div>
+<!-- بطاقة مباراة (مول&#1617;دة) -->
+<style>
+  /* أنماط خاصة بالـ modal تستخدم معرف فريد لتفادي أي تأثير على موقعك */
+  #player-modal_mc_mxdso7926 { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:99999; justify-content:center; align-items:center; opacity:0; transform:scale(1.02); transition:opacity .35s ease, transform .35s ease; }
+  #player-modal_mc_mxdso7926.show { display:flex; opacity:1; transform:scale(1); }
+  #player-container_mc_mxdso7926 { position:relative; width:90%; max-width:1000px; aspect-ratio:16/9; background:#000; border-radius:12px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,0.6); }
+  #player-container_mc_mxdso7926 iframe { width:100%; height:100%; border:0; display:block; background:#000; }
+  #player-container_mc_mxdso7926 button.close { position:absolute; top:10px; right:10px; z-index:3; width:40px; height:40px; border-radius:50%; border:none; background:#fff; color:#000; font-weight:700; cursor:pointer; }
+  #transition_mc_mxdso7926 { position:fixed; inset:0; pointer-events:none; z-index:99998; background: radial-gradient(1200px 50% at 50% 50%, rgba(108,92,231,0.20), rgba(11,14,20,0.95) 60%, #0b0e14 100%); opacity:0; transform:scale(1.08); transition:opacity .45s ease, transform .45s ease; }
+  #transition_mc_mxdso7926.active { opacity:1; transform:scale(1); }
+</style>
 
-  <!-- قائمة البطاقات -->
-  <div class="cards">
-    <div class="card" onclick="openPlayer('https://www.youtube.com/embed/BIrS0p9ohs4?si=1vsc_GxOs-UtbpDD')">
-      <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi33dLmSaxPOX2g65YZUyQZokajSjAiBpPnewKiNlHP68_wOT46rLbmPSRxVWfWNnp7CVbv0ZkTMU5MEosSO11NT3GeqaLs38ucuyg5vpkBxUmlTsAyqXjsIj2RamzUOJVhyphenhyphennlH1sdK_vPmwOBYot4ZhmFPK8p9oHkbNSE-BUAe9nrAPqDMkuPV_1eHQOX5/s320/IMG_0701.jpeg" alt="فيديو 1">
+<div id="mc_mxdso7926" style="font-family:Tahoma;direction:rtl;max-width:420px;cursor:pointer">
+  <div style="display:flex;align-items:center;justify-content:space-between;background:#fff;padding:10px;border-radius:8px;margin:10px 0;box-shadow:0 0 5px rgba(0,0,0,0.08)">
+    <div style="text-align:center">
+      
+      <span style="font-size:14px">برشلونة</span>
     </div>
-    <div class="card" onclick="openPlayer('https://www.njbf.online/albaplayer/max1/?serv=3')">
-      <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEicz_ZstwoEDAOplfYdRn4UHbe1ldca38RzN0H6-0qMf5Ul6hIQCLzNPQ2K5kNjAk02CPjmsDCaZCabCNS67PUgeAQnKpVTqU07z8EnMDNmYrzypermhnj2O1qecnqngFjehdDO2kJn8XiHE5Cs3Jyw9NGZ2f1E1qwTXGpwtmIUqjbMhZ8_-J63yD3_31na/s938/IMG_0700.jpeg" alt="فيديو 2">
+    <div style="text-align:center">
+      <div class="mc-status" style="padding:5px 10px;border-radius:5px;font-weight:700;display:inline-block"></div>
+      <div class="mc-time" style="font-size:12px;color:#666;margin-top:6px">25‏/9‏/2025، 9:37:00 م</div>
     </div>
-    <div class="card" onclick="openPlayer('https://www.example.com/embed/video3')">
-      <img src="https://via.placeholder.com/800x400?text=بوستر+3" alt="فيديو 3">
+    <div style="text-align:center">
+      
+      <span style="font-size:14px">ريال مدريد</span>
     </div>
   </div>
+</div>
 
+<div id="transition_mc_mxdso7926"></div>
+
+<div id="player-modal_mc_mxdso7926">
+  <div id="player-container_mc_mxdso7926">
+    <!-- لا نضع src حتى الضغط -->
+    <iframe id="player_iframe_mc_mxdso7926" data-src="https://bvggj.yallashootlivetv.com/albaplayer/sports-2/" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+    <button class="close" onclick="closePlayer_mc_mxdso7926()">&#215;</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const card = document.getElementById('mc_mxdso7926');
+  const modal = document.getElementById('player-modal_mc_mxdso7926');
+  const transition = document.getElementById('transition_mc_mxdso7926');
+  const container = document.getElementById('player-container_mc_mxdso7926');
+  const iframe = document.getElementById('player_iframe_mc_mxdso7926');
+  const dataSrc = iframe.getAttribute('data-src');
+  const matchTime = 1758825420000;
+  const statusEl = card.querySelector('.mc-status');
+
+  function pad(n){ return n<10 ? '0'+n : n; }
+  function updateStatus(){
+    const now = new Date();
+    const start = new Date(matchTime);
+    const end = new Date(matchTime + 96*60000);
+    let text='', bg='';
+    if(now >= end){ text='انتهت'; bg='#888'; }
+    else if(now >= start){ text='جاري الآن'; bg='#d9534f'; }
+    else {
+      const diff = (start - now)/60000;
+      if(diff > 0 && diff <= 15){ text='بعد قليل'; bg='#31c48d'; }
+      else { text='لم تبدأ بعد'; bg='#6c6f76'; }
+    }
+    statusEl.textContent = text;
+    statusEl.style.background = bg;
+    statusEl.style.color = '#fff';
+  }
+  updateStatus();
+  setInterval(updateStatus, 60000);
+
+  function buildAutoplaySrc(s){
+    if(!s) return '';
+    // نضيف autoplay=1&muted=1 لضمان التشغيل في معظم المتصفحات (المستخدم يمكن تشغيل الصوت لاحقا&#1611;)
+    return s + (s.indexOf('?') === -1 ? '?' : '&') + 'autoplay=1&muted=1';
+  }
+
+  card.addEventListener('click', function(e){
+    // نستخدم الضغط المباشر لعمل ثلاثة أشياء مسموحة كـ "user gesture":
+    // 1) وضع src ليبدأ التحميل + autoplay (مكتوب هنا مباشرة)
+    // 2) طلب ملء الشاشة (يجب أن يكون داخل نفس حدث الـ click لكي يسري)
+    // 3) إظهار المودال
+    try {
+      iframe.src = buildAutoplaySrc(dataSrc);
+    } catch(err){
+      console.warn('خطأ بوضع src:', err);
+    }
+
+    // محاولة الدخول لملء الشاشة على الحاوية (container) &#8212; غالبا&#1611; مسموح لأنها نتيجة تفاعل المستخدم
+    try {
+      if(container.requestFullscreen) container.requestFullscreen();
+      else if(container.webkitRequestFullscreen) container.webkitRequestFullscreen();
+      else if(container.msRequestFullscreen) container.msRequestFullscreen();
+    } catch(err){
+      console.warn('طلب ملء الشاشة فشل:', err);
+    }
+
+    // عرض overlay + modal (مع تأثير ناعم)
+    transition.classList.add('active');
+    // نعرض المودال فورا&#1611; لأن الـ requestFullscreen يجب أن يكون ردا&#1611; مباشرا&#1611; على التفاعل
+    modal.classList.add('show');
+
+    // نزيل الـ overlay بعد فترة قصيرة لإعطاء انطباع الانبثاق الناعم
+    setTimeout(() => transition.classList.remove('active'), 420);
+  });
+
+  // دالة إغلاق
+  window.closePlayer_mc_mxdso7926 = function(){
+    // أخرج من ملء الشاشة لو كان مفعل
+    try {
+      if(document.fullscreenElement) document.exitFullscreen();
+      else if(document.webkitFullscreenElement) document.webkitExitFullscreen();
+    } catch(e){}
+
+    // تعطيل الـ iframe (إيقاف التشغيل)
+    try { iframe.src = ''; } catch(e){}
+
+    modal.classList.remove('show');
+  };
+
+  // إغلاق عند النقر خارج الحاوية أو الضغط على ESC
+  modal.addEventListener('click', function(ev){
+    if(ev.target === modal) window.closePlayer_mc_mxdso7926();
+  });
+  document.addEventListener('keydown', function(ev){
+    if(ev.key === 'Escape') window.closePlayer_mc_mxdso7926();
+  });
+
+})();
+</script>
   <!-- نافذة المشغل -->
   <div id="playerModal">
     <button id="closeBtn" onclick="closePlayer()">✖ إغلاق</button>
-    <iframe id="videoFrame" 
-            src="" 
-            allowfullscreen 
-            allow="autoplay; encrypted-media" 
-            sandbox="allow-same-origin allow-scripts allow-forms">
-    </iframe>
+    <iframe allow="autoplay; encrypted-media" allowfullscreen="" id="videoFrame" src=""></iframe>
   </div>
 
   <script>
@@ -109,7 +218,7 @@
     function closePlayer() {
       document.getElementById("playerModal").style.display = "none";
       document.getElementById("videoFrame").src = "";
-    } 
+    }
   </script>
 </body>
 </html>
