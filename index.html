@@ -1,202 +1,148 @@
-
-
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html dir="rtl" lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Yassmin TV</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: "Tajawal", sans-serif;
-      background: #111;
-      color: #fff;
-    }
-    header {
-      text-align: center;
-      padding: 15px;
-      background: linear-gradient(90deg, #8e44ad, #9b59b6);
-      font-size: 22px;
-      font-weight: bold;
-    }
-    .cards {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      padding: 15px;
-    }
-    .card {
-      border-radius: 12px;
-      overflow: hidden;
-      cursor: pointer;
-      height: 200px;
-      background: #333;
-    }
-    .card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-    }
-    .card:hover img {
-      transform: scale(1.05);
-    }
-‎    /* النافذة */
-    #playerModal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.95);
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-      flex-direction: column;
-    }
-    #playerModal iframe {
-      width: 90%;
-      max-width: 900px;
-      aspect-ratio: 16/9;
-      border: none;
-    }
-    #closeBtn {
-      margin-bottom: 15px;
-      background: #e74c3c;
-      color: #fff;
-      border: none;
-      font-size: 20px;
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      z-index: 1000;
-    }
-    #closeBtn:hover {
-      background: #c0392b;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>صفحة المباريات مع مولد مخفي</title>
+<style>
+  body { font-family: Tahoma, sans-serif; background:#f5f5f5; padding:20px; color:#111; }
+  h1 { text-align:center; margin-bottom:14px; }
+  #cardsContainer { display:flex; flex-direction:column; gap:15px; }
+  .card { display:flex; justify-content:space-between; align-items:center; background:#fff; padding:10px; border-radius:8px; box-shadow:0 0 5px rgba(0,0,0,0.08); cursor:pointer; max-width:420px; }
+  .mc-status { padding:5px 10px; border-radius:5px; font-weight:700; display:inline-block; }
+  .mc-time { font-size:12px; color:#666; margin-top:6px; }
+  #playerModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); justify-content:center; align-items:center; z-index:99999; }
+  #player-container { position:relative; width:90%; max-width:1000px; aspect-ratio:16/9; background:#000; border-radius:12px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,0.6); }
+  #player-container iframe { width:100%; height:100%; border:0; display:block; background:#000; }
+  #player-container button.close { position:absolute; top:10px; right:10px; width:40px; height:40px; border-radius:50%; border:none; background:#fff; color:#000; font-weight:700; cursor:pointer; }
+
+  /* المولد المخفي */
+  #generator { display:none; background:#eee; padding:20px; border-radius:12px; margin-bottom:20px; }
+  #generator input, #generator button { width:100%; padding:8px; margin:5px 0; border-radius:6px; border:1px solid #ccc; }
+</style>
 </head>
 <body>
-  <header>🎬 Yassmin TV</header>
+<h1>🏆 المباريات اليوم</h1>
 
-‎ <!-- قائمة البطاقات -->
+<!-- حاوية البطاقات -->
+<div id="cardsContainer"></div>
 
-
-‎<!-- بطاقة مباراة (مول&#1617;دة + حماية من الإعلانات) -->
-<style>
-  #player-modal_mc_q7vhs62lk{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;justify-content:center;align-items:center;opacity:0;transform:scale(1.02);transition:opacity .35s ease,transform .35s ease;}
-  #player-modal_mc_q7vhs62lk.show{display:flex;opacity:1;transform:scale(1);}
-  #player-container_mc_q7vhs62lk{position:relative;width:90%;max-width:1000px;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.6);}
-  #player-container_mc_q7vhs62lk iframe{width:100%;height:100%;border:0;display:block;background:#000;}
-  #player-container_mc_q7vhs62lk button.close{position:absolute;top:10px;right:10px;z-index:3;width:40px;height:40px;border-radius:50%;border:none;background:#fff;color:#000;font-weight:700;cursor:pointer;}
-</style>
-
-<div id="mc_q7vhs62lk" style="font-family:Tahoma;direction:rtl;max-width:420px;cursor:pointer">
-  <div style="display:flex;align-items:center;justify-content:space-between;background:#fff;padding:10px;border-radius:8px;margin:10px 0;box-shadow:0 0 5px rgba(0,0,0,0.08)">
-    <div style="text-align:center">
-      
-      <span style="font-size:14px">برشلونة</span>
-    </div>
-    <div style="text-align:center">
-      <div class="mc-status" style="padding:5px 10px;border-radius:5px;font-weight:700;display:inline-block"></div>
-      <div class="mc-time" style="font-size:12px;color:#666;margin-top:6px">18‏/9‏/2025، 3:33:00 ص</div>
-    </div>
-    <div style="text-align:center">
-      
-      <span style="font-size:14px">ريال مدريد</span>
-    </div>
+<!-- نافذة تشغيل الفيديو -->
+<div id="playerModal">
+  <div id="player-container">
+    <iframe id="playerIframe" allow="autoplay; fullscreen; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation" allowfullscreen></iframe>
+    <button class="close" onclick="closePlayer()">×</button>
   </div>
 </div>
 
-<div id="player-modal_mc_q7vhs62lk">
-  <div id="player-container_mc_q7vhs62lk">
-    <iframe id="player_iframe_mc_q7vhs62lk" data-src="https://pl.buzkora.site/albaplayer/bein3/?serv=0" allow="autoplay; fullscreen; picture-in-picture"
-      sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
-      allowfullscreen></iframe>
-    <button class="close" onclick="closePlayer_mc_q7vhs62lk()">&#215;</button>
-  </div>
+<!-- المولد المخفي -->
+<div id="generator">
+  <h2>🎯 مولّد بطاقة مباراة (خاص)</h2>
+  <input id="team1" placeholder="اسم الفريق الأول">
+  <input id="logo1" placeholder="رابط شعار الفريق الأول (اختياري)">
+  <input id="team2" placeholder="اسم الفريق الثاني">
+  <input id="logo2" placeholder="رابط شعار الفريق الثاني (اختياري)">
+  <input id="matchTime" type="time" value="12:00">
+  <input id="iframeSrc" placeholder="رابط المشغل (iframe src فقط)">
+  <button onclick="addCard()">إضافة البطاقة</button>
 </div>
 
 <script>
-(function(){
-  const card=document.getElementById('mc_q7vhs62lk');
-  const modal=document.getElementById('player-modal_mc_q7vhs62lk');
-  const container=document.getElementById('player-container_mc_q7vhs62lk');
-  const iframe=document.getElementById('player_iframe_mc_q7vhs62lk');
-  const dataSrc=iframe.getAttribute('data-src');
-  const matchTime=1758155580000;
-  const statusEl=card.querySelector('.mc-status');
+// حماية المولد بكلمة مرور
+const password = prompt("أدخل كلمة المرور للوصول للمولد:");
+if(password === "1234"){ // ضع كلمتك هنا
+  document.getElementById('generator').style.display='block';
+}
 
-  function updateStatus(){
-    const now=new Date();
-    const start=new Date(matchTime);
-    const end=new Date(matchTime+96*60000);
-    let text='',bg='';
-    if(now>=end){text='انتهت';bg='#888';}
-    else if(now>=start){text='جاري الآن';bg='#d9534f';}
-    else{const diff=(start-now)/60000;
-      if(diff>0&&diff<=15){text='بعد قليل';bg='#31c48d';}
-      else{text='لم تبدأ بعد';bg='#6c6f76';}}
-    statusEl.textContent=text;
-    statusEl.style.background=bg;
-    statusEl.style.color='#fff';
-  }
-  updateStatus();setInterval(updateStatus,60000);
+// حاوية البطاقات
+const container = document.getElementById('cardsContainer');
+const modal = document.getElementById('playerModal');
+const iframe = document.getElementById('playerIframe');
 
-  function buildAutoplaySrc(s){
-    return s+(s.indexOf('?')===-1?'?':'&')+'autoplay=1&muted=1';
-  }
+function buildAutoplaySrc(s){ return s + (s.indexOf('?')===-1?'?':'&') + 'autoplay=1&muted=1'; }
+function closePlayer(){ iframe.src=''; modal.style.display='none'; }
 
-  card.addEventListener('click',function(){
-    try{iframe.src=buildAutoplaySrc(dataSrc);}catch(err){}
-    try{if(container.requestFullscreen)container.requestFullscreen();}catch(err){}
-    modal.classList.add('show');
-  });
+// استرجاع البطاقات من localStorage
+let cards = JSON.parse(localStorage.getItem('cards') || '[]');
 
-  window.closePlayer_mc_q7vhs62lk=function(){
-    try{if(document.fullscreenElement)document.exitFullscreen();}catch(e){}
-    try{iframe.src='';}catch(e){}
-    modal.classList.remove('show');
-  };
+// حذف البطاقات الأقدم من 24 ساعة
+const now = Date.now();
+cards = cards.filter(c => now - c.timestamp < 24*60*60*1000);
+localStorage.setItem('cards', JSON.stringify(cards));
 
-  modal.addEventListener('click',function(ev){
-    if(ev.target===modal)window.closePlayer_mc_q7vhs62lk();
-  });
-  document.addEventListener('keydown',function(ev){
-    if(ev.key==='Escape')window.closePlayer_mc_q7vhs62lk();
-  });
+// توليد بطاقة جديدة
+function addCard(){
+  const t1=document.getElementById('team1').value.trim();
+  const t2=document.getElementById('team2').value.trim();
+  const l1=document.getElementById('logo1').value.trim();
+  const l2=document.getElementById('logo2').value.trim();
+  const timeStr=document.getElementById('matchTime').value;
+  const src=document.getElementById('iframeSrc').value.trim();
+  if(!t1||!t2||!timeStr||!src){ alert('⚠ الرجاء تعبئة كل الحقول'); return; }
 
-‎  // 🛡&#65039; مانع النوافذ المنبثقة
-  const originalOpen=window.open;
-  window.open=function(url,name,specs){
-    console.warn("🚫 منع نافذة منبثقة:",url);
-    return null;
-  };
-  document.addEventListener("click",function(e){
-    const a=e.target.closest("a");
-    if(a&&a.getAttribute("target")==="_blank"){
-      e.preventDefault();
-      console.warn("🚫 منع رابط Popup:",a.href);
+  const [hours,minutes]=timeStr.split(':');
+  const matchTime = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), hours, minutes).getTime();
+
+  const cardObj = {t1,t2,l1,l2,matchTime,src,timestamp:Date.now()};
+  cards.push(cardObj);
+  localStorage.setItem('cards', JSON.stringify(cards));
+  renderCards();
+  alert('✅ تم إضافة البطاقة!');
+}
+
+// عرض البطاقات
+function renderCards(){
+  container.innerHTML='';
+  cards.forEach(c=>{
+    const div=document.createElement('div');
+    div.className='card';
+    div.innerHTML=`
+      <div style="text-align:center">
+        ${c.l1?`<img src="${c.l1}" style="width:40px;height:40px;display:block;margin:0 auto"><br>`:''}
+        <span style="font-size:14px; color:#000">${c.t1}</span>
+      </div>
+      <div style="text-align:center">
+        <div class="mc-status"></div>
+        <div class="mc-time">${new Date(c.matchTime).toLocaleString()}</div>
+      </div>
+      <div style="text-align:center">
+        ${c.l2?`<img src="${c.l2}" style="width:40px;height:40px;display:block;margin:0 auto"><br>`:''}
+        <span style="font-size:14px; color:#000">${c.t2}</span>
+      </div>
+    `;
+    const statusEl=div.querySelector('.mc-status');
+    function updateStatus(){
+      const now=new Date();
+      const start=new Date(c.matchTime);
+      const end=new Date(c.matchTime+96*60000);
+      let text='',bg='';
+      if(now>=end){ text='انتهت'; bg='#888'; }
+      else if(now>=start){ text='جاري الآن'; bg='#d9534f'; }
+      else{ const diff=(start-now)/60000; if(diff>0&&diff<=15){ text='بعد قليل'; bg='#31c48d'; } else { text='لم تبدأ بعد'; bg='#6c6f76'; } }
+      statusEl.textContent=text;
+      statusEl.style.background=bg;
+      statusEl.style.color='#fff';
     }
-  },true);
-})();
+    updateStatus(); setInterval(updateStatus,60000);
+
+    div.addEventListener('click',()=>{ iframe.src=buildAutoplaySrc(c.src); modal.style.display='flex'; });
+    container.appendChild(div);
+  });
+}
+
+// أول مرة تحميل البطاقات
+renderCards();
+
+// 🛡️ منع النوافذ المنبثقة
+window.open=function(url,name,specs){ console.warn("🚫 منع نافذة منبثقة:",url); return null; };
+document.addEventListener("click",function(e){
+  const a=e.target.closest("a");
+  if(a&&a.getAttribute("target")==="_blank"){ e.preventDefault(); console.warn("🚫 منع رابط Popup:",a.href); }
+},true);
+
+modal.addEventListener('click',(e)=>{ if(e.target===modal) closePlayer(); });
+document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') closePlayer(); });
+
 </script>
-
-
-
-
-
-
-
-
-  <script>
-    function openPlayer(url) {
-      document.getElementById("playerModal").style.display = "flex";
-      document.getElementById("videoFrame").src = url;
-    }
-    function closePlayer() {
-      document.getElementById("playerModal").style.display = "none";
-      document.getElementById("videoFrame").src = "";
-    }
-  </script>
 </body>
 </html>
