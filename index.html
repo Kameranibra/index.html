@@ -1,137 +1,115 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Yassmin TV — بطاقات المباريات</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yassmin TV</title>
   <style>
-    body { font-family: Tahoma, sans-serif; background:#f5f5f5; margin:0; padding:20px; color:#111; }
-    header { text-align:center; padding:15px; background:#8e44ad; color:#fff; font-size:22px; font-weight:bold; border-radius:8px; }
-    #cardsContainer { display:flex; flex-direction:column; gap:15px; margin-top:20px; }
-    /* المولد */
-    #generator { display:none; margin-top:20px; padding:15px; background:#fff; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.1); }
-    label { display:block; margin-top:10px; font-weight:700; }
-    input, textarea, button { width:100%; padding:8px; margin-top:5px; border-radius:6px; border:1px solid #ddd; }
-    button { background:#28a745; color:#fff; border:none; cursor:pointer; font-weight:700; margin-top:10px; }
-    button:hover { background:#218838; }
-    textarea#result { height:150px; font-family:monospace; direction:ltr; }
+    body { font-family: Tahoma, sans-serif; background:#f5f5f5; padding:20px; color:#111; }
+    header { text-align:center; font-size:24px; font-weight:bold; margin-bottom:20px; }
+    #cardsContainer { display:flex; flex-direction:column; gap:12px; }
+    .mc-card { display:flex; align-items:center; justify-content:space-between; background:#fff; padding:10px; border-radius:8px; box-shadow:0 0 5px rgba(0,0,0,0.08); cursor:pointer; max-width:420px; }
+    .mc-card div { text-align:center; }
+    .mc-card .mc-status { padding:5px 10px; border-radius:5px; font-weight:700; display:inline-block; color:#fff; }
+    .mc-card .mc-time { font-size:12px; color:#666; margin-top:6px; }
+    /* نافذة المشغل */
+    .player-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:99999; justify-content:center; align-items:center; opacity:0; transform:scale(1.02); transition:opacity .35s ease, transform .35s ease; }
+    .player-modal.show { display:flex; opacity:1; transform:scale(1); }
+    .player-container { position:relative; width:90%; max-width:1000px; aspect-ratio:16/9; background:#000; border-radius:12px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,0.6); }
+    .player-container iframe { width:100%; height:100%; border:0; display:block; background:#000; }
+    .player-container button.close { position:absolute; top:10px; right:10px; z-index:3; width:40px; height:40px; border-radius:50%; border:none; background:#fff; color:#000; font-weight:700; cursor:pointer; }
+    /* المولد (مخفي) */
+    #generator { display:none; margin-top:30px; background:#eee; padding:15px; border-radius:8px; max-width:500px; }
+    #generator label { display:block; margin-top:10px; font-weight:700; }
+    #generator input, #generator textarea, #generator button { width:100%; margin-top:5px; padding:8px; border-radius:6px; border:1px solid #ccc; }
+    #result { height:200px; font-family: monospace; }
   </style>
 </head>
 <body>
-  <header>🎯 Yassmin TV - بطاقات المباريات</header>
 
-  <!-- حاوية البطاقات للزوار -->
-  <div id="cardsContainer"></div>
+<header>Yassmin TV</header>
 
-  <!-- المولد مخفي للزوار -->
-  <div id="generator">
-    <h2>مولّد بطاقة مباراة (خاص بك فقط)</h2>
+<div id="cardsContainer"></div>
 
-    <label>اسم الفريق الأول:</label>
-    <input id="team1" placeholder="مثال: برشلونة" type="text" />
-
-    <label>رابط شعار الفريق الأول (اختياري):</label>
-    <input id="logo1" placeholder="https://..." type="text" />
-
-    <label>اسم الفريق الثاني:</label>
-    <input id="team2" placeholder="مثال: ريال مدريد" type="text" />
-
-    <label>رابط شعار الفريق الثاني (اختياري):</label>
-    <input id="logo2" placeholder="https://..." type="text" />
-
-    <label>تاريخ ووقت المباراة:</label>
-    <input id="matchTime" type="datetime-local" />
-
-    <label>رابط المشغل أو وسم iframe كامل:</label>
-    <textarea id="iframeCode" placeholder='مثال: &lt;iframe src="https://www.youtube.com/embed/ID"&gt;&lt;/iframe&gt;'></textarea>
-
-    <button onclick="generateCard()">توليد البطاقة</button>
-    <label>الكود الناتج:</label>
-    <textarea id="result" readonly></textarea>
-  </div>
-
-  <script>
-  // إظهار المولد فقط لك عند رابط يحتوي ?admin=1
-  if(window.location.search.includes('admin=1')){
-    document.getElementById('generator').style.display='block';
-  }
-
-  function escapeAttr(s){
-    return (s+'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-  function extractSrc(input){
-    if(!input) return '';
-    const m = input.match(/src=['"]([^'"]+)['"]/i);
-    if(m) return m[1];
-    return input.trim();
-  }
-
-  function generateCard(){
-    const team1 = document.getElementById('team1').value.trim();
-    const team2 = document.getElementById('team2').value.trim();
-    const logo1 = document.getElementById('logo1').value.trim();
-    const logo2 = document.getElementById('logo2').value.trim();
-    const matchTimeInput = document.getElementById('matchTime').value;
-    const iframeInput = document.getElementById('iframeCode').value.trim();
-
-    if(!team1 || !team2 || !matchTimeInput || !iframeInput){
-      alert('⚠ الرجاء تعبئة: اسم الفريقين والتاريخ وكود/رابط الـ iframe');
-      return;
-    }
-
-    const src = extractSrc(iframeInput);
-    if(!src){ alert('لم أجد رابط في إدخال الـ iframe'); return; }
-
-    const matchTimestamp = new Date(matchTimeInput).getTime();
-    const uniqueId = 'mc_' + Math.random().toString(36).substr(2,9);
-
-    const t1 = escapeAttr(team1);
-    const t2 = escapeAttr(team2);
-    const l1 = escapeAttr(logo1);
-    const l2 = escapeAttr(logo2);
-    const srcEsc = escapeAttr(src);
-
-    const code = `
-<!-- بطاقة مباراة -->
-<style>
-  #player-modal_${uniqueId}{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;justify-content:center;align-items:center;opacity:0;transform:scale(1.02);transition:opacity .35s ease,transform .35s ease;}
-  #player-modal_${uniqueId}.show{display:flex;opacity:1;transform:scale(1);}
-  #player-container_${uniqueId}{position:relative;width:90%;max-width:1000px;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.6);}
-  #player-container_${uniqueId} iframe{width:100%;height:100%;border:0;display:block;background:#000;}
-  #player-container_${uniqueId} button.close{position:absolute;top:10px;right:10px;z-index:3;width:40px;height:40px;border-radius:50%;border:none;background:#fff;color:#000;font-weight:700;cursor:pointer;}
-</style>
-
-<div id="${uniqueId}" style="font-family:Tahoma;direction:rtl;max-width:420px;cursor:pointer">
-  <div style="display:flex;align-items:center;justify-content:space-between;background:#fff;padding:10px;border-radius:8px;margin:10px 0;box-shadow:0 0 5px rgba(0,0,0,0.08)">
-    <div style="text-align:center">
-      ${l1 ? `<img src="${l1}" alt="${t1}" style="width:40px;height:40px;display:block;margin:0 auto"><br>` : ''}
-      <span style="font-size:14px;color:#000;">${t1}</span>
-    </div>
-    <div style="text-align:center">
-      <div class="mc-status" style="padding:5px 10px;border-radius:5px;font-weight:700;display:inline-block"></div>
-      <div class="mc-time" style="font-size:12px;color:#666;margin-top:6px">${new Date(matchTimestamp).toLocaleString()}</div>
-    </div>
-    <div style="text-align:center">
-      ${l2 ? `<img src="${l2}" alt="${t2}" style="width:40px;height:40px;display:block;margin:0 auto"><br>` : ''}
-      <span style="font-size:14px;color:#000;">${t2}</span>
-    </div>
-  </div>
+<!-- نافذة كلمة المرور للوصول للمولد -->
+<div id="passwordPrompt">
+  <label>ادخل كلمة المرور للوصول للمولد:</label>
+  <input type="password" id="accessPassword" placeholder="كلمة المرور">
+  <button onclick="checkPassword()">دخول</button>
 </div>
 
-<div id="player-modal_${uniqueId}">
-  <div id="player-container_${uniqueId}">
-    <iframe id="player_iframe_${uniqueId}" data-src="${srcEsc}" allow="autoplay; fullscreen; picture-in-picture"
+<!-- المولد (مخفي افتراضياً) -->
+<div id="generator">
+  <h2>مولّد بطاقة مباراة</h2>
+  <label>اسم الفريق الأول:</label>
+  <input id="team1" placeholder="مثال: برشلونة" type="text" />
+  <label>رابط شعار الفريق الأول (اختياري):</label>
+  <input id="logo1" placeholder="https://..." type="text" />
+  <label>اسم الفريق الثاني:</label>
+  <input id="team2" placeholder="مثال: ريال مدريد" type="text" />
+  <label>رابط شعار الفريق الثاني (اختياري):</label>
+  <input id="logo2" placeholder="https://..." type="text" />
+  <label>اختر توقيت المباراة:</label>
+  <input id="matchTime" type="datetime-local" />
+  <label>رابط المشغل أو iframe كامل:</label>
+  <textarea id="iframeCode" placeholder='مثال: &lt;iframe src="https://www.youtube.com/embed/ID"&gt;&lt;/iframe&gt;'></textarea>
+  <button onclick="generateCard()">توليد البطاقة</button>
+  <label>الكود الناتج:</label>
+  <textarea id="result" readonly></textarea>
+</div>
+
+<script>
+const MY_PASSWORD = "YOUR_SECRET"; // ضع هنا كلمة المرور الخاصة بك
+
+function checkPassword() {
+  const val = document.getElementById("accessPassword").value;
+  if(val === MY_PASSWORD){
+    document.getElementById("generator").style.display = "block";
+    document.getElementById("passwordPrompt").style.display = "none";
+  } else {
+    alert("كلمة المرور غير صحيحة");
+  }
+}
+
+// دالة توليد البطاقات
+function escapeAttr(s){ return (s+'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function extractSrc(input){ if(!input) return ''; const m = input.match(/src=['"]([^'"]+)['"]/i); if(m) return m[1]; return input.trim(); }
+
+function generateCard(){
+  const t1=document.getElementById('team1').value.trim();
+  const t2=document.getElementById('team2').value.trim();
+  const l1=document.getElementById('logo1').value.trim();
+  const l2=document.getElementById('logo2').value.trim();
+  const matchTimeInput=document.getElementById('matchTime').value;
+  const iframeInput=document.getElementById('iframeCode').value.trim();
+
+  if(!t1||!t2||!matchTimeInput||!iframeInput){ alert('يرجى تعبئة جميع الحقول'); return; }
+
+  const src = extractSrc(iframeInput);
+  if(!src){ alert('لم أجد رابط في إدخال الـ iframe'); return; }
+
+  const matchTimestamp = new Date(matchTimeInput).getTime();
+  const uniqueId = 'mc_' + Math.random().toString(36).substr(2,9);
+
+  const code = `
+<div id="${uniqueId}" class="mc-card" style="cursor:pointer">
+  <div>${l1?'<img src="'+escapeAttr(l1)+'" alt="'+escapeAttr(t1)+'" style="width:40px;height:40px;display:block;margin:0 auto"><br>':''}<span style="font-size:14px; color:#000">${escapeAttr(t1)}</span></div>
+  <div><div class="mc-status"></div><div class="mc-time" style="font-size:12px;color:#666;margin-top:6px">${new Date(matchTimestamp).toLocaleString()}</div></div>
+  <div>${l2?'<img src="'+escapeAttr(l2)+'" alt="'+escapeAttr(t2)+'" style="width:40px;height:40px;display:block;margin:0 auto"><br>':''}<span style="font-size:14px; color:#000">${escapeAttr(t2)}</span></div>
+</div>
+<div id="player-modal_${uniqueId}" class="player-modal">
+  <div class="player-container">
+    <iframe id="player_iframe_${uniqueId}" data-src="${escapeAttr(src)}" allow="autoplay; fullscreen; picture-in-picture"
       sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
       allowfullscreen></iframe>
-    <button class="close" onclick="closePlayer_${uniqueId}()">×</button>
+    <button class="close" onclick="closePlayer('${uniqueId}')">×</button>
   </div>
 </div>
-
 <script>
 (function(){
   const card=document.getElementById('${uniqueId}');
   const modal=document.getElementById('player-modal_${uniqueId}');
-  const container=document.getElementById('player-container_${uniqueId}');
+  const container=modal.querySelector('.player-container');
   const iframe=document.getElementById('player_iframe_${uniqueId}');
   const dataSrc=iframe.getAttribute('data-src');
   const matchTime=${matchTimestamp};
@@ -153,7 +131,7 @@
   }
   updateStatus();setInterval(updateStatus,60000);
 
-  function buildAutoplaySrc(s){return s+(s.indexOf('?')===-1?'?':'&')+'autoplay=1&muted=1';}
+  function buildAutoplaySrc(s){ return s+(s.indexOf('?')===-1?'?':'&')+'autoplay=1&muted=1'; }
 
   card.addEventListener('click',function(){
     try{iframe.src=buildAutoplaySrc(dataSrc);}catch(err){}
@@ -161,34 +139,44 @@
     modal.classList.add('show');
   });
 
-  window['closePlayer_${uniqueId}']=function(){
+  window.closePlayer = function(id){
+    const m=document.getElementById('player-modal_'+id);
+    const f=document.getElementById('player_iframe_'+id);
     try{if(document.fullscreenElement)document.exitFullscreen();}catch(e){}
-    try{iframe.src='';}catch(e){}
-    modal.classList.remove('show');
+    try{f.src='';}catch(e){}
+    m.classList.remove('show');
   };
 
-  modal.addEventListener('click',function(ev){ if(ev.target===modal)window['closePlayer_${uniqueId}'](); });
-  document.addEventListener('keydown',function(ev){ if(ev.key==='Escape')window['closePlayer_${uniqueId}'](); });
+  modal.addEventListener('click',function(ev){
+    if(ev.target===modal) window.closePlayer('${uniqueId}');
+  });
+  document.addEventListener('keydown',function(ev){
+    if(ev.key==='Escape') window.closePlayer('${uniqueId}');
+  });
 
-  const originalOpen=window.open;
-  window.open=function(url,name,specs){ console.warn("🚫 منع نافذة منبثقة:",url); return null; };
+  // مانع النوافذ المنبثقة
+  window.open=function(url,name,specs){
+    console.warn("🚫 منع نافذة منبثقة:",url);
+    return null;
+  };
   document.addEventListener("click",function(e){
     const a=e.target.closest("a");
-    if(a&&a.getAttribute("target")==="_blank"){ e.preventDefault(); console.warn("🚫 منع رابط Popup:",a.href); }
+    if(a && a.getAttribute("target")==="_blank"){ e.preventDefault(); console.warn("🚫 منع رابط Popup:",a.href); }
   },true);
 })();
-</script>
+<\/script>
 `;
 
-    // إضافة الكود مباشرة إلى الحاوية للعرض الفوري
-    const container = document.getElementById('cardsContainer');
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = code;
-    container.appendChild(tempDiv);
+  // إضافة البطاقة مباشرة للحاوية
+  const container = document.getElementById('cardsContainer');
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = code;
+  container.appendChild(tempDiv);
 
-    // وضع الكود في textarea للنسخ
-    document.getElementById('result').value = code.trim();
-  }
-  </script>
+  // وضع الكود في textarea للنسخ
+  document.getElementById('result').value = code.trim();
+}
+</script>
+
 </body>
 </html>
