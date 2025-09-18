@@ -1,148 +1,138 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>صفحة المباريات مع مولد مخفي</title>
-<style>
-  body { font-family: Tahoma, sans-serif; background:#f5f5f5; padding:20px; color:#111; }
-  h1 { text-align:center; margin-bottom:14px; }
-  #cardsContainer { display:flex; flex-direction:column; gap:15px; }
-  .card { display:flex; justify-content:space-between; align-items:center; background:#fff; padding:10px; border-radius:8px; box-shadow:0 0 5px rgba(0,0,0,0.08); cursor:pointer; max-width:420px; }
-  .mc-status { padding:5px 10px; border-radius:5px; font-weight:700; display:inline-block; }
-  .mc-time { font-size:12px; color:#666; margin-top:6px; }
-  #playerModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); justify-content:center; align-items:center; z-index:99999; }
-  #player-container { position:relative; width:90%; max-width:1000px; aspect-ratio:16/9; background:#000; border-radius:12px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,0.6); }
-  #player-container iframe { width:100%; height:100%; border:0; display:block; background:#000; }
-  #player-container button.close { position:absolute; top:10px; right:10px; width:40px; height:40px; border-radius:50%; border:none; background:#fff; color:#000; font-weight:700; cursor:pointer; }
-
-  /* المولد المخفي */
-  #generator { display:none; background:#eee; padding:20px; border-radius:12px; margin-bottom:20px; }
-  #generator input, #generator button { width:100%; padding:8px; margin:5px 0; border-radius:6px; border:1px solid #ccc; }
-</style>
+  <meta charset="UTF-8">
+  <title>صفحة البطاقات</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: Tahoma, sans-serif; background:#f5f5f5; padding:20px; direction:rtl; color:#111; }
+    header { text-align:center; padding:15px; background:linear-gradient(90deg,#8e44ad,#9b59b6); font-size:22px; font-weight:bold; color:#fff; border-radius:8px; }
+    #cardsContainer { display:flex; flex-direction:column; gap:10px; margin-top:20px; }
+    .card { display:flex; align-items:center; justify-content:space-between; background:#fff; padding:10px; border-radius:8px; box-shadow:0 0 5px rgba(0,0,0,0.08); cursor:pointer; max-width:420px; }
+    .card span { font-size:14px; font-weight:bold; color:#000; }
+    .mc-status { padding:5px 10px; border-radius:5px; font-weight:700; display:inline-block; color:#fff; }
+    .mc-time { font-size:12px; color:#666; margin-top:6px; text-align:center; }
+    /* النافذة */
+    .player-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); justify-content:center; align-items:center; opacity:0; transform:scale(1.02); transition:opacity .35s ease,transform .35s ease; z-index:99999; }
+    .player-modal.show { display:flex; opacity:1; transform:scale(1); }
+    .player-container { position:relative; width:90%; max-width:1000px; aspect-ratio:16/9; background:#000; border-radius:12px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,0.6); }
+    .player-container iframe { width:100%; height:100%; border:0; display:block; background:#000; }
+    .player-container button.close { position:absolute; top:10px; right:10px; z-index:3; width:40px; height:40px; border-radius:50%; border:none; background:#fff; color:#000; font-weight:700; cursor:pointer; }
+    /* المولد */
+    #generator { display:none; margin-top:20px; background:#fff; padding:15px; border-radius:8px; box-shadow:0 0 5px rgba(0,0,0,0.08); max-width:420px; }
+    #generator input, #generator textarea, #generator button { width:100%; margin-top:8px; padding:8px; border-radius:8px; border:1px solid #ddd; }
+    #generator textarea#result { height:150px; font-family: monospace; direction:ltr; }
+  </style>
 </head>
 <body>
-<h1>🏆 المباريات اليوم</h1>
+  <header>🎬 Yassmin TV - بطاقات المباريات</header>
 
-<!-- حاوية البطاقات -->
-<div id="cardsContainer"></div>
+  <div id="cardsContainer"></div>
 
-<!-- نافذة تشغيل الفيديو -->
-<div id="playerModal">
-  <div id="player-container">
-    <iframe id="playerIframe" allow="autoplay; fullscreen; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation" allowfullscreen></iframe>
-    <button class="close" onclick="closePlayer()">×</button>
+  <!-- نافذة المشغل -->
+  <div class="player-modal" id="playerModal">
+    <div class="player-container">
+      <iframe id="videoFrame" src="" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"></iframe>
+      <button class="close" onclick="closePlayer()">✖</button>
+    </div>
   </div>
-</div>
 
-<!-- المولد المخفي -->
-<div id="generator">
-  <h2>🎯 مولّد بطاقة مباراة (خاص)</h2>
-  <input id="team1" placeholder="اسم الفريق الأول">
-  <input id="logo1" placeholder="رابط شعار الفريق الأول (اختياري)">
-  <input id="team2" placeholder="اسم الفريق الثاني">
-  <input id="logo2" placeholder="رابط شعار الفريق الثاني (اختياري)">
-  <input id="matchTime" type="time" value="12:00">
-  <input id="iframeSrc" placeholder="رابط المشغل (iframe src فقط)">
-  <button onclick="addCard()">إضافة البطاقة</button>
-</div>
+  <!-- المولد -->
+  <div id="generator">
+    <h2>🎯 مولّد بطاقة مباراة (خاص بك)</h2>
+    <label>اسم الفريق الأول:</label>
+    <input id="team1" placeholder="مثال: برشلونة" type="text" />
+    <label>رابط شعار الفريق الأول (اختياري):</label>
+    <input id="logo1" placeholder="https://..." type="text" />
+    <label>اسم الفريق الثاني:</label>
+    <input id="team2" placeholder="مثال: ريال مدريد" type="text" />
+    <label>رابط شعار الفريق الثاني (اختياري):</label>
+    <input id="logo2" placeholder="https://..." type="text" />
+    <label>رابط البث أو كود iframe كامل:</label>
+    <textarea id="iframeCode" placeholder='مثال: &lt;iframe src="https://www.youtube.com/embed/ID"&gt;&lt;/iframe&gt;'></textarea>
+    <button onclick="generateCard()">توليد البطاقة</button>
+    <label>الكود الناتج:</label>
+    <textarea id="result" readonly></textarea>
+  </div>
 
 <script>
-// حماية المولد بكلمة مرور
-const password = prompt("أدخل كلمة المرور للوصول للمولد:");
-if(password === "1234"){ // ضع كلمتك هنا
-  document.getElementById('generator').style.display='block';
+/* 🔒 حماية المولد بكلمة مرور */
+const password = "12345"; // ضع كلمة المرور التي تريدها
+const userPass = prompt("أدخل كلمة المرور للوصول إلى المولد:");
+if(userPass === password){
+  document.getElementById('generator').style.display = 'block';
+} else {
+  alert("كلمة المرور غير صحيحة!");
 }
 
-// حاوية البطاقات
-const container = document.getElementById('cardsContainer');
-const modal = document.getElementById('playerModal');
-const iframe = document.getElementById('playerIframe');
-
-function buildAutoplaySrc(s){ return s + (s.indexOf('?')===-1?'?':'&') + 'autoplay=1&muted=1'; }
-function closePlayer(){ iframe.src=''; modal.style.display='none'; }
-
-// استرجاع البطاقات من localStorage
-let cards = JSON.parse(localStorage.getItem('cards') || '[]');
-
-// حذف البطاقات الأقدم من 24 ساعة
-const now = Date.now();
-cards = cards.filter(c => now - c.timestamp < 24*60*60*1000);
-localStorage.setItem('cards', JSON.stringify(cards));
-
-// توليد بطاقة جديدة
-function addCard(){
-  const t1=document.getElementById('team1').value.trim();
-  const t2=document.getElementById('team2').value.trim();
-  const l1=document.getElementById('logo1').value.trim();
-  const l2=document.getElementById('logo2').value.trim();
-  const timeStr=document.getElementById('matchTime').value;
-  const src=document.getElementById('iframeSrc').value.trim();
-  if(!t1||!t2||!timeStr||!src){ alert('⚠ الرجاء تعبئة كل الحقول'); return; }
-
-  const [hours,minutes]=timeStr.split(':');
-  const matchTime = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), hours, minutes).getTime();
-
-  const cardObj = {t1,t2,l1,l2,matchTime,src,timestamp:Date.now()};
-  cards.push(cardObj);
-  localStorage.setItem('cards', JSON.stringify(cards));
-  renderCards();
-  alert('✅ تم إضافة البطاقة!');
+/* فتح وإغلاق نافذة الفيديو */
+function openPlayer(url, container){
+  const modal = container.querySelector('.player-modal') || document.getElementById('playerModal');
+  const iframe = document.getElementById('videoFrame');
+  iframe.src = url;
+  modal.classList.add('show');
+}
+function closePlayer(){
+  const modal = document.getElementById('playerModal');
+  document.getElementById('videoFrame').src = "";
+  modal.classList.remove('show');
 }
 
-// عرض البطاقات
-function renderCards(){
-  container.innerHTML='';
-  cards.forEach(c=>{
-    const div=document.createElement('div');
-    div.className='card';
-    div.innerHTML=`
-      <div style="text-align:center">
-        ${c.l1?`<img src="${c.l1}" style="width:40px;height:40px;display:block;margin:0 auto"><br>`:''}
-        <span style="font-size:14px; color:#000">${c.t1}</span>
-      </div>
-      <div style="text-align:center">
-        <div class="mc-status"></div>
-        <div class="mc-time">${new Date(c.matchTime).toLocaleString()}</div>
-      </div>
-      <div style="text-align:center">
-        ${c.l2?`<img src="${c.l2}" style="width:40px;height:40px;display:block;margin:0 auto"><br>`:''}
-        <span style="font-size:14px; color:#000">${c.t2}</span>
-      </div>
-    `;
-    const statusEl=div.querySelector('.mc-status');
-    function updateStatus(){
-      const now=new Date();
-      const start=new Date(c.matchTime);
-      const end=new Date(c.matchTime+96*60000);
-      let text='',bg='';
-      if(now>=end){ text='انتهت'; bg='#888'; }
-      else if(now>=start){ text='جاري الآن'; bg='#d9534f'; }
-      else{ const diff=(start-now)/60000; if(diff>0&&diff<=15){ text='بعد قليل'; bg='#31c48d'; } else { text='لم تبدأ بعد'; bg='#6c6f76'; } }
-      statusEl.textContent=text;
-      statusEl.style.background=bg;
-      statusEl.style.color='#fff';
-    }
-    updateStatus(); setInterval(updateStatus,60000);
-
-    div.addEventListener('click',()=>{ iframe.src=buildAutoplaySrc(c.src); modal.style.display='flex'; });
-    container.appendChild(div);
-  });
+/* استخراج src من iframe */
+function extractSrc(input){
+  if(!input) return '';
+  const m = input.match(/src=['"]([^'"]+)['"]/i);
+  if(m) return m[1];
+  return input.trim();
 }
 
-// أول مرة تحميل البطاقات
-renderCards();
+/* توليد بطاقة جديدة */
+function generateCard(){
+  const t1 = document.getElementById('team1').value.trim();
+  const t2 = document.getElementById('team2').value.trim();
+  const l1 = document.getElementById('logo1').value.trim();
+  const l2 = document.getElementById('logo2').value.trim();
+  const iframeInput = document.getElementById('iframeCode').value.trim();
+  if(!t1 || !t2 || !iframeInput){ alert("⚠ الرجاء تعبئة: اسم الفريقين ورابط البث"); return; }
+  const src = extractSrc(iframeInput);
+  if(!src){ alert("لم أجد رابط في إدخال الـ iframe"); return; }
 
-// 🛡️ منع النوافذ المنبثقة
-window.open=function(url,name,specs){ console.warn("🚫 منع نافذة منبثقة:",url); return null; };
-document.addEventListener("click",function(e){
-  const a=e.target.closest("a");
-  if(a&&a.getAttribute("target")==="_blank"){ e.preventDefault(); console.warn("🚫 منع رابط Popup:",a.href); }
-},true);
+  const uniqueId = 'mc_' + Math.random().toString(36).substr(2,9);
+  const timestamp = Date.now();
 
-modal.addEventListener('click',(e)=>{ if(e.target===modal) closePlayer(); });
-document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') closePlayer(); });
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.id = uniqueId;
+  card.innerHTML = `
+    <div style="text-align:center">${l1 ? `<img src="${l1}" style="width:40px;height:40px;"><br>` : ''}<span>${t1}</span></div>
+    <div style="text-align:center">
+      <div class="mc-status" style="display:inline-block; font-weight:700; padding:5px 10px;"></div>
+      <div class="mc-time" style="font-size:12px;color:#666;margin-top:6px;">${new Date(timestamp).toLocaleString()}</div>
+    </div>
+    <div style="text-align:center">${l2 ? `<img src="${l2}" style="width:40px;height:40px;"><br>` : ''}<span>${t2}</span></div>
+  `;
 
+  document.getElementById('cardsContainer').appendChild(card);
+
+  const statusEl = card.querySelector('.mc-status');
+  function updateStatus(){
+    const now = new Date();
+    const end = new Date(timestamp + 96*60000);
+    if(now >= end){ statusEl.textContent='انتهت'; statusEl.style.background='#888'; }
+    else { statusEl.textContent='جاري الآن'; statusEl.style.background='#d9534f'; }
+    statusEl.style.color='#fff';
+  }
+  updateStatus(); setInterval(updateStatus,60000);
+
+  card.addEventListener('click',function(){ openPlayer(src, card); });
+
+  document.getElementById('result').value = card.outerHTML;
+  
+  // مسح الحقول بعد التوليد
+  document.getElementById('team1').value=''; document.getElementById('team2').value='';
+  document.getElementById('logo1').value=''; document.getElementById('logo2').value='';
+  document.getElementById('iframeCode').value='';
+}
 </script>
 </body>
 </html>
